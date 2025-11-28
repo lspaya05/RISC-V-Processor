@@ -7,19 +7,18 @@
 //      - BIT_WIDTH: 
 //      - ALU_OP_WIDTH:
 //      - TAG_WIDTH:
-//      - ADDR_WIDTH:
 //      - NUM_CDB: 
 //      - GATE_DELAY: 
 // Control IO: 
 //  Inputs:
-//      - wr: 1-bit signal to 'Write' to the slot. Loads up all the tags, values, and addresses.
+//      - wr: 1-bit signal to 'Write' to the slot. Loads up all the tags and values.
 //      - instrRecieved: 1-bit signal signifying the data of an instruction has been recieved in
 //              the functional unit, and tells the reservation slot that it can accept a new
 //              instruction.
 //      - clk: 1 bit clock signal for system.
 //      - reset: 1 bit reset signal for system.
 //  Outputs:
-//      - busy: The slot is currently busy and cannot accept a new instruction. Can be by passed, 
+//      - busy: The slot is currently busy and cannot accept a new instruction. Can be bypassed; 
 //              simply a status signal.
 //      - ready: The data inside the slot is ready to be sent to a functional unit.
 // Datapath IO:
@@ -32,12 +31,10 @@
 //              value being sent in inVj or inVk is valid.
 //      - inVj, inVk: Bus of bit length 'BIT_WIDTH', sends the value of Reg. j and Reg. k if known
 //              at time when loading the slot.
-//      - inAddr: TODO
 //  Outputs:
 //      - outTag: 
 //      - outOp:
 //      - outVj, outVk:
-//      - outAddr: 
 // CDB IO:
 //  Inputs:
 //      - funcUnitTags: 
@@ -47,7 +44,6 @@ module ReservationSlot #(
     parameter int BIT_WIDTH = 32,
     parameter int ALU_OP_WIDTH = 7,
     parameter int TAG_WIDTH = 8, 
-    parameter int ADDR_WIDTH = TODO, 
     parameter int NUM_CDB = 8;
     parameter int GATE_DELAY = 0;
 ) (
@@ -61,11 +57,9 @@ module ReservationSlot #(
     input logic [ALU_OP_WIDTH - 1 : 0] inOp, 
     input logic [TAG_WIDTH  - 1 : 0] inQj, inQk, 
     input logic [BIT_WIDTH - 1 : 0] inVj, inVk, 
-    input logic [ADDR_WIDTH - 1 : 0] inAddr, 
     output logic [TAG_WIDTH - 1 : 0] outTag,
     output logic [ALU_OP_WIDTH - 1 : 0] outOp, 
     output logic [BIT_WIDTH - 1 : 0] outVj, outVk,
-    output logic [ADDR_WIDTH - 1 : 0] outAddr,
 
     //From CDB:
     input logic [TAG_WIDTH - 1 : 0] funcUnitTags [NUM_CDB - 1 : 0],
@@ -100,7 +94,6 @@ module ReservationSlot #(
         if (wr) begin // Setup Reservation Station
             outTag <= inTag;
             outOp <= inOp;
-            outAddr <= inAddr;
         end 
 
         if (wr) begin
